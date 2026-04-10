@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdint.h>
 
 typedef struct
@@ -10,21 +9,6 @@ typedef struct
     uint8_t V; //overflow
 
 } ALU_OUTPUT;
-
-
-int8_t dec2bin (int n) {
-    for (int i = 31; i >= 0; i--) {
-        printf("%i", n >> i & 1);
-        if (!(i % 8)) printf(" ");
-    }
-    printf("\n");
-
-    return (int8_t)n;
-}
-
-int8_t MUX (int a, int b, int s) {
-    return (a & !s) | (b & s);
-}
 
 ALU_OUTPUT ALU(int A, int B, int A_S) {
     // I: (int A, int B, int A_S) -> O: (int8_t RES, int8_t Z, int8_t N, int8_t C, int8_t V)
@@ -67,17 +51,4 @@ ALU_OUTPUT ALU(int A, int B, int A_S) {
         .C   =  (Cout7),
         .V   =  (Cout6 ^ Cout7)
     };
-}
-
-int main() {
-    //printf("%i\n", MUX(0, 0, 0));
-    //printf("%i\n", RCA(17, 23));
-    ALU_OUTPUT a = ALU(127, 1, 1);
-    printf("RES: %.8b\n", (uint8_t)a.RES);
-    printf("RES: %i\n", a.RES);
-    printf("Z  : %.8b\n", a.Z);
-    printf("N  : %.8b\n", a.N);
-    printf("C  : %.8b\n", a.C);
-    printf("V  : %.8b\n", a.V);
-    return 0;
 }
