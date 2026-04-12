@@ -1,35 +1,57 @@
-# CPUSimulator
+# 8-Bit CPU Simulator in C
 
-A low-level hardware simulation project developed in C. The goal is to build a functional CPU model starting from basic logic gates and arithmetic units, moving towards a complete instruction cycle.
+A low-level hardware simulation project focused on building a functional CPU architecture from scratch. This project simulates fundamental components including Logic Gates, Multiplexers, D-Type Flip-Flops, 8-bit Registers, and an Arithmetic Logic Unit (ALU).
 
-## Current Status: ALU (Arithmetic Logic Unit)
+## Project Structure
 
-The project currently features a fully implemented ALU capable of performing fundamental operations. The focus was on ensuring mathematical precision and correct flag handling.
+* **include/**: Header files (.h) containing struct definitions and function prototypes.
+* **src/**: Source files (.c) containing the implementation of logic and hardware behavior.
+* **Makefile**: Build script for easy compilation.
 
-* **Logic Operations:** AND, OR, XOR, NOT.
-* **Arithmetic Operations:** Addition and Subtraction.
-* **Flag System:**
-    * **Zero (Z):** Set when the result is zero.
-    * **Negative (N):** Set if the result is negative (MSB is 1).
-    * **Carry (C):** Set on unsigned overflow.
-    * **Overflow (V):** Set on signed overflow, detecting inconsistencies in arithmetic results.
+## Function Documentation
 
-## Ongoing Development: Memory & State
+### ALU (Arithmetic Logic Unit)
+* **Function**: `ALU_OUTPUT ALU(byte A, byte B, byte A_S)`
+* **Receives**: 
+    * `byte A`, `byte B`: Two 8-bit inputs.
+    * `byte A_S`: Control signal (Add/Subtract).
+* **Returns**: `ALU_OUTPUT` struct containing the 8-bit result (`RES`) and hardware flags (`Z`, `N`, `C`, `V`).
+* **Description**: Simulates a bit-by-bit ripple carry adder/subtractor. It calculates the result and updates status flags for Zero, Negative, Carry, and Overflow.
 
-The current phase focuses on the implementation of **Latches and Registers**. 
+### D-Type Flip-Flop (DFF)
+* **Function**: `void update_DFF(DFF *dff, uint8_t d, uint8_t clk)`
+* **Receives**: 
+    * `DFF *dff`: Pointer to the DFF structure to be updated.
+    * `uint8_t d`: The data input bit (0 or 1).
+    * `uint8_t clk`: The current clock signal (0 or 1).
+* **Returns**: `void`
+* **Description**: Updates the internal state of a flip-flop. It captures the input `d` only on the rising edge of the clock signal.
 
-The main challenge is simulating the feedback loops required for state retention. I am evaluating the implementation of:
-* **SR and D-Type Latches** to form the basis of the memory hierarchy.
-* **Clock synchronization** logic to manage the transition from combinational to sequential logic.
-* **Program Counter (PC) and Accumulator** initialization.
+### Register (8-bit)
+* **Function**: `void update_register(register8 reg, int8_t data, int clock)`
+* **Receives**: 
+    * `register8 reg`: The array of 8 DFFs representing the register.
+    * `int8_t data`: The 8-bit value to be stored.
+    * `int clock`: The current clock signal.
+* **Returns**: `void`
+* **Description**: Iterates through each bit of the input data and updates the corresponding DFF within the register.
 
-## How to Run
+### Byte Retrieval
+* **Function**: `byte get_full_byte(register8 reg)`
+* **Receives**: `register8 reg` (the array of 8 DFFs).
+* **Returns**: `byte` (int8_t).
+* **Description**: Reads the `q` state of all 8 DFFs and reconstructs them into a single 8-bit integer (byte).
 
-1.  Compile the source:
-    ```bash
-    gcc -o main main.c alu.c
-    ```
-2.  Execute:
-    ```bash
-    ./main
-    ```
+### Multiplexer (MUX)
+* **Function**: `int8_t MUX(int a, int b, int s)`
+* **Receives**: Inputs `a`, `b` and a selector `s`.
+* **Returns**: `int8_t` (the value of `a` if `s=0`, or `b` if `s=1`).
+* **Description**: Fundamental component used for signal routing and state selection.
+
+## Build and Run
+
+To compile the project, use the provided Makefile:
+
+```bash
+make
+./CS01
