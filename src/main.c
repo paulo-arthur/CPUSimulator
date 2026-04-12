@@ -3,6 +3,7 @@
 
 #include "ALU.h"
 #include "MUX.h"
+#include "DFF.h"
 
 int8_t dec2bin (int n) {
     for (int i = 31; i >= 0; i--) {
@@ -25,4 +26,9 @@ int main() {
     printf("V  : %.8b\n", a.V);
     return 0;
     */
+    int8_t clock = 0;
+
+    for(int i = 0; i < 40; i++) {
+        clock = !clock;
+    }
 }
