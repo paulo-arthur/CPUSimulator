@@ -1,0 +1,451 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: obj/**, bin/**, *.o
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+include/
+  ALU.h
+  byte.h
+  DFF.h
+  MUX.h
+  register8.h
+src/
+  ALU.c
+  byte.c
+  DFF.c
+  main.c
+  MUX.c
+  register8.c
+.gitignore
+CS01
+LICENSE
+Makefile
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="include/byte.h">
+#ifndef BYTE_H
+#define BYTE_H
+
+#include <stdint.h>
+
+typedef int8_t byte;
+
+#endif
+</file>
+
+<file path="src/byte.c">
+#include <stdio.h>
+
+#include "byte.h"
+</file>
+
+<file path="include/ALU.h">
+#ifndef ALU_H
+#define ALU_H
+
+#include <stdint.h>
+
+typedef struct
+{
+    int8_t RES; //result
+    uint8_t Z; //zero
+    uint8_t N; //negative
+    uint8_t C; //carrier
+    uint8_t V; //overflow
+
+} ALU_OUTPUT;
+
+ALU_OUTPUT ALU(int A, int B, int A_S);
+
+#endif
+</file>
+
+<file path="include/DFF.h">
+#ifndef DFF_H
+#define DFF_H
+
+#include <stdint.h>
+
+typedef struct {
+    int8_t q; //valor guardado
+    int8_t prev_clk; //valor do clock passado
+} DFF;
+
+void update_DFF (DFF *dff, uint8_t d, uint8_t clk);
+
+#endif
+</file>
+
+<file path="include/MUX.h">
+#ifndef MUX_H
+#define MUX_H
+
+#include <stdint.h>
+
+int8_t MUX (int a, int b, int s);
+
+#endif
+</file>
+
+<file path="include/register8.h">
+#ifndef REGISTER8_H
+#define REGISTER8_H
+
+#include <stdint.h>
+
+#include "DFF.h"
+#include "byte.h"
+
+typedef DFF register8[8];
+
+void update_register(register8 reg, int8_t data, int clock);
+byte get_full_byte(register8 reg);
+
+
+#endif
+</file>
+
+<file path="src/ALU.c">
+#include <stdint.h>
+#include <byte.h>
+
+typedef struct
+{
+    byte RES; //result
+    byte STRPD_RES[8]; //striped_result
+    uint8_t Z; //zero
+    uint8_t N; //negative
+    uint8_t C; //carrier
+    uint8_t V; //overflow
+
+} ALU_OUTPUT;
+
+ALU_OUTPUT ALU(byte A, byte B, byte A_S) {
+    // I: (int A, int B, int A_S) -> O: (int8_t RES, int8_t Z, int8_t N, int8_t C, int8_t V)
+    int8_t S0    = ((A >> 0 & 1) ^ ((B >> 0 & 1) ^ A_S));
+    int8_t Cout0 = ((A >> 0 & 1) & ((B >> 0 & 1) ^ A_S)) | (S0 & A_S);
+    S0 = S0 ^ A_S;
+
+    int8_t S1    = ((A >> 1 & 1) ^ ((B >> 1 & 1) ^ A_S));
+    int8_t Cout1 = ((A >> 1 & 1) & ((B >> 1 & 1) ^ A_S)) | (S1 & Cout0);
+    S1 = S1 ^ Cout0;
+
+    int8_t S2    = ((A >> 2 & 1) ^ ((B >> 2 & 1) ^ A_S));
+    int8_t Cout2 = ((A >> 2 & 1) & ((B >> 2 & 1) ^ A_S)) | (S2 & Cout1);
+    S2 = S2 ^ Cout1;
+
+    int8_t S3    = ((A >> 3 & 1) ^ ((B >> 3 & 1) ^ A_S));
+    int8_t Cout3 = ((A >> 3 & 1) & ((B >> 3 & 1) ^ A_S)) | (S3 & Cout2);
+    S3 = S3 ^ Cout2;
+
+    int8_t S4    = ((A >> 4 & 1) ^ ((B >> 4 & 1) ^ A_S));
+    int8_t Cout4 = ((A >> 4 & 1) & ((B >> 4 & 1) ^ A_S)) | (S4 & Cout3);
+    S4 = S4 ^ Cout3; 
+
+    int8_t S5    = ((A >> 5 & 1) ^ ((B >> 5 & 1) ^ A_S));
+    int8_t Cout5 = ((A >> 5 & 1) & ((B >> 5 & 1) ^ A_S)) | (S5 & Cout4);
+    S5 = S5 ^ Cout4;
+
+    int8_t S6    = ((A >> 6 & 1) ^ ((B >> 6 & 1) ^ A_S));
+    int8_t Cout6 = ((A >> 6 & 1) & ((B >> 6 & 1) ^ A_S)) | (S6 & Cout5);
+    S6 = S6 ^ Cout5;
+
+    int8_t S7    = ((A >> 7 & 1) ^ ((B >> 7 & 1) ^ A_S));
+    int8_t Cout7 = ((A >> 7 & 1) & ((B >> 7 & 1) ^ A_S)) | (S7 & Cout6);
+    S7 = S7 ^ Cout6;
+
+    return (ALU_OUTPUT) {
+        .RES = 1*S0 + 2*S1 + 4*S2 + 8*S3 + 16*S4 + 32*S5 + 64*S6 + 128*S7, 
+        .STRPD_RES =  {S0 , S1 , S2 , S3 , S4 , S5 , S6 , S7},
+        .Z   = !(S0 | S1 | S2 | S3 | S4 | S5 | S6 | S7),
+        .N   =  (S7),
+        .C   =  (Cout7),
+        .V   =  (Cout6 ^ Cout7)
+    };
+}
+</file>
+
+<file path="src/DFF.c">
+#include "DFF.h"
+#include "MUX.h"
+
+void update_DFF(DFF *dff, uint8_t d, uint8_t clk) {
+    dff->q = MUX(dff->q, d, (clk ^ dff->prev_clk) & clk); //escolhe entre o valor que era e o valor na entrada atual baseado na codição do clock estar mudando (diferente do anterior e se ele é 1)
+    dff->prev_clk = clk;
+}
+</file>
+
+<file path="src/register8.c">
+#include "register8.h"
+
+void update_register(register8 reg, int8_t data, int clock) {
+    update_DFF(&reg[0], (data >> 0) & 1, clock);
+    update_DFF(&reg[1], (data >> 1) & 1, clock);
+    update_DFF(&reg[2], (data >> 2) & 1, clock);
+    update_DFF(&reg[3], (data >> 3) & 1, clock);
+    update_DFF(&reg[4], (data >> 4) & 1, clock);
+    update_DFF(&reg[5], (data >> 5) & 1, clock);
+    update_DFF(&reg[6], (data >> 6) & 1, clock);
+    update_DFF(&reg[7], (data >> 7) & 1, clock);
+}
+
+byte get_full_byte(register8 reg) {
+    byte out = 0b00000000;
+    out |= (reg[0].q << 0);
+    out |= (reg[1].q << 1);
+    out |= (reg[2].q << 2);
+    out |= (reg[3].q << 3);
+    out |= (reg[4].q << 4);
+    out |= (reg[5].q << 5);
+    out |= (reg[6].q << 6);
+    out |= (reg[7].q << 7);
+
+    return out;
+}
+</file>
+
+<file path="LICENSE">
+MIT License
+
+Copyright (c) 2026 Paulo Arthur
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</file>
+
+<file path="Makefile">
+# Nome do executável final
+TARGET = CS01
+
+# Compilador
+CC = gcc
+
+# Flags de compilação (-I./include diz ao GCC para buscar headers lá)
+CFLAGS = -Wall -I./include
+
+# Lista todos os arquivos .c dentro de src/
+SRCS = $(wildcard src/*.c)
+
+# Regra principal
+all:
+	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
+
+# Limpar o executável
+clean:
+	rm -f $(TARGET)
+</file>
+
+<file path="src/main.c">
+#include <stdio.h>
+#include <stdint.h>
+
+#include "ALU.h"
+#include "MUX.h"
+#include "DFF.h"
+#include "register8.h"
+
+int8_t dec2bin (int n) {
+    for (int i = 31; i >= 0; i--) {
+        printf("%i", n >> i & 1);
+        if (!(i % 8)) printf(" ");
+    }
+    printf("\n");
+
+    return (int8_t)n;
+}
+
+int main() {
+    /*
+    ALU_OUTPUT a = ALU(127, 1, 1);
+    printf("RES: %.8b\n", (uint8_t)a.RES);
+    printf("RES: %i\n", a.RES);
+    printf("Z  : %.8b\n", a.Z);
+    printf("N  : %.8b\n", a.N);
+    printf("C  : %.8b\n", a.C);
+    printf("V  : %.8b\n", a.V);
+    return 0;
+    */
+
+    /*
+    byte: int8_t representado em 0bXXXXXXXX;
+    DFF: int8_t q (valor guardado) e int8_t prev_clk;
+    register8: DFF bits[8];
+    */
+
+    int8_t clock = 0;
+
+    register8 reg01 = {0};
+
+    for(int i = 0; i < 40; i++) {
+        printf("%.8b\n", (uint8_t)get_full_byte(reg01));
+
+        byte output = ALU(get_full_byte(reg01), 0b00000001, 0b00000001).RES;
+        update_register(reg01, output, clock);
+
+        clock = !clock;
+    }
+}
+</file>
+
+<file path="src/MUX.c">
+#include <stdint.h>
+
+int8_t MUX (int a, int b, int s) {
+    return (a & !s) | (b & s); //S = 0: a, s = 1: b
+}
+</file>
+
+<file path=".gitignore">
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# debug information files
+*.dwo
+</file>
+
+<file path="README.md">
+# CPUSimulator
+
+A low-level hardware simulation project developed in C. The goal is to build a functional CPU model starting from basic logic gates and arithmetic units, moving towards a complete instruction cycle.
+
+## Current Status: ALU (Arithmetic Logic Unit)
+
+The project currently features a fully implemented ALU capable of performing fundamental operations. The focus was on ensuring mathematical precision and correct flag handling.
+
+* **Logic Operations:** AND, OR, XOR, NOT.
+* **Arithmetic Operations:** Addition and Subtraction.
+* **Flag System:**
+    * **Zero (Z):** Set when the result is zero.
+    * **Negative (N):** Set if the result is negative (MSB is 1).
+    * **Carry (C):** Set on unsigned overflow.
+    * **Overflow (V):** Set on signed overflow, detecting inconsistencies in arithmetic results.
+
+## Ongoing Development: Memory & State
+
+The current phase focuses on the implementation of **Latches and Registers**. 
+
+The main challenge is simulating the feedback loops required for state retention. I am evaluating the implementation of:
+* **SR and D-Type Latches** to form the basis of the memory hierarchy.
+* **Clock synchronization** logic to manage the transition from combinational to sequential logic.
+* **Program Counter (PC) and Accumulator** initialization.
+
+## How to Run
+
+1.  Compile the source:
+    ```bash
+    gcc -o main main.c alu.c
+    ```
+2.  Execute:
+    ```bash
+    ./main
+    ```
+</file>
+
+</files>

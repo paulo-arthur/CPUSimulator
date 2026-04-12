@@ -2,13 +2,14 @@
 #define REGISTER8_H
 
 #include <stdint.h>
+
 #include "DFF.h"
+#include "byte.h"
 
-typedef struct
-{
-    DFF bits[8];
-} register8;
+typedef DFF register8[8];
 
-void update_register(register8 *reg, int8_t data, int clock);
+void update_register(register8 reg, int8_t data, int clock);
+byte get_full_byte(register8 reg);
+
 
 #endif

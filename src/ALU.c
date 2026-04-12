@@ -1,8 +1,10 @@
 #include <stdint.h>
+#include <byte.h>
 
 typedef struct
 {
-    int8_t RES; //result
+    byte RES; //result
+    byte STRPD_RES[8]; //striped_result
     uint8_t Z; //zero
     uint8_t N; //negative
     uint8_t C; //carrier
@@ -10,7 +12,7 @@ typedef struct
 
 } ALU_OUTPUT;
 
-ALU_OUTPUT ALU(int A, int B, int A_S) {
+ALU_OUTPUT ALU(byte A, byte B, byte A_S) {
     // I: (int A, int B, int A_S) -> O: (int8_t RES, int8_t Z, int8_t N, int8_t C, int8_t V)
     int8_t S0    = ((A >> 0 & 1) ^ ((B >> 0 & 1) ^ A_S));
     int8_t Cout0 = ((A >> 0 & 1) & ((B >> 0 & 1) ^ A_S)) | (S0 & A_S);
@@ -45,7 +47,8 @@ ALU_OUTPUT ALU(int A, int B, int A_S) {
     S7 = S7 ^ Cout6;
 
     return (ALU_OUTPUT) {
-        .RES =  (uint8_t)(S0 + S1*2 + S2*4 + S3*8 + S4*16 + S5*32 + S6*64 + S7*128),
+        .RES = 1*S0 + 2*S1 + 4*S2 + 8*S3 + 16*S4 + 32*S5 + 64*S6 + 128*S7, 
+        .STRPD_RES =  {S0 , S1 , S2 , S3 , S4 , S5 , S6 , S7},
         .Z   = !(S0 | S1 | S2 | S3 | S4 | S5 | S6 | S7),
         .N   =  (S7),
         .C   =  (Cout7),
