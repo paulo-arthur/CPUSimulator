@@ -5,6 +5,7 @@
 #include "MUX.h"
 #include "DFF.h"
 #include "register8.h"
+#include "RAM.h"
 
 int8_t dec2bin (int n) {
     for (int i = 31; i >= 0; i--) {
@@ -35,15 +36,12 @@ int main() {
     */
 
     int8_t clock = 0;
-
-    register8 reg01 = {0};
+    RAM ram;
+    init_RAM(&ram);
+    write_RAM(&ram, join_bytes(0b00000000, 0b00000100), ALU(0b00100011, 0b00001000, 0).RES);
 
     for(int i = 0; i < 40; i++) {
-        printf("%.8b\n", (uint8_t)get_full_byte(reg01));
-
-        byte output = ALU(get_full_byte(reg01), 0b00000001, 0b00000001).RES;
-        update_register(reg01, output, clock);
-
+        printf("> %.8b\n", read_RAM(&ram, join_bytes(0b00000000, i)));
         clock = !clock;
     }
 }
