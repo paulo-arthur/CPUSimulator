@@ -2,7 +2,8 @@
 #define MUX_H
 
 #include <stdint.h>
+#include "byte.h"
 
-int8_t MUX (int a, int b, int s);
+byte MUX (byte f, byte t, byte s);
 
 #endif

@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-typedef int8_t byte;
+typedef uint8_t byte;
 
-int16_t join_bytes(int8_t HIGH, int8_t LOW);
+int16_t join_bytes(uint8_t HIGH, uint8_t LOW);
 
 #endif

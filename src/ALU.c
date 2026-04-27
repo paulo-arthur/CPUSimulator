@@ -1,5 +1,6 @@
 #include <stdint.h>
-#include <byte.h>
+#include "byte.h"
+#include "status_register.h"
 
 typedef struct
 {
@@ -12,7 +13,7 @@ typedef struct
 
 } ALU_OUTPUT;
 
-ALU_OUTPUT ALU(byte A, byte B, byte A_S) {
+ALU_OUTPUT ALU(byte A, byte B, byte A_S, STATUS_REGISTER *sr) {
     // I: (int A, int B, int A_S) -> O: (int8_t RES, int8_t Z, int8_t N, int8_t C, int8_t V)
     int8_t S0    = ((A >> 0 & 1) ^ ((B >> 0 & 1) ^ A_S));
     int8_t Cout0 = ((A >> 0 & 1) & ((B >> 0 & 1) ^ A_S)) | (S0 & A_S);
@@ -46,7 +47,7 @@ ALU_OUTPUT ALU(byte A, byte B, byte A_S) {
     int8_t Cout7 = ((A >> 7 & 1) & ((B >> 7 & 1) ^ A_S)) | (S7 & Cout6);
     S7 = S7 ^ Cout6;
 
-    return (ALU_OUTPUT) {
+    ALU_OUTPUT output = {
         .RES = 1*S0 + 2*S1 + 4*S2 + 8*S3 + 16*S4 + 32*S5 + 64*S6 + 128*S7, 
         .STRPD_RES =  {S0 , S1 , S2 , S3 , S4 , S5 , S6 , S7},
         .Z   = !(S0 | S1 | S2 | S3 | S4 | S5 | S6 | S7),
@@ -54,4 +55,11 @@ ALU_OUTPUT ALU(byte A, byte B, byte A_S) {
         .C   =  (Cout7),
         .V   =  (Cout6 ^ Cout7)
     };
+
+    set_C_flag(sr, output.C);
+    set_Z_flag(sr, output.Z);
+    set_N_flag(sr, output.N);
+    set_V_flag(sr, output.V);
+
+    return output;
 }

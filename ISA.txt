@@ -1,0 +1,27 @@
+====================== MAJORMINUS (ALFA) - INSTRUCTION SET ARCTETURE (ISA) =========================
+
+ZERO PAGE (0x0000 - 0x00FF) - (256 slots)
+Pequeno e rápido. Ideal para variáveis críticas.
+
+STACK PAGE (0x0100 - 0x1FF) - (256 slots)
+Memória da CPU para até 128 funções aninhadas.
+
+DATARAM PAGE (0x0200 - 0x7FFF) - (31,5 KB)
+Área de dados comuns. Tudo será trabalhado aqui, inclusive VRAM.
+
+ROM PAGE (0x8000 - 0xFFFF) - (32 KB)
+Opcodes e instructions.
+
+INSTRUCTION TABLE OPERATION CODES:
+
+0x0_: Controle
+0x1_: Mover Dados (Loads/Stores)
+0x2_: Matemática (ALU)
+
+instruction_table[0x00] = NOP;
+
+instruction_table[0x10] = LDA;
+instruction_table[0x11] = STA;
+
+instruction_table[0x20] = ADD;
+instruction_table[0x21] = SUB;

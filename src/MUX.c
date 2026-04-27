@@ -1,5 +1,6 @@
 #include <stdint.h>
+#include "byte.h"
 
-int8_t MUX (int a, int b, int s) {
-    return (a & !s) | (b & s); //S = 0: a, s = 1: b
+byte MUX (byte f, byte t, byte s) {
+    return (f & ~(-s)) | (t & -s);
 }
