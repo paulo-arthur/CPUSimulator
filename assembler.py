@@ -5,44 +5,68 @@ content = content.split("\n")
 
 START_ADRESS = 0x8000
 
-LABELS = []
-RAM_SHADOW = ["NOP"] * 65536
+CODE_TO_BIN = {
+    "NOP": {"opcode": 0x00, "mode": "NONE"},
+    "JMP": {"opcode": 0x01, "mode": "ADDR16"},
+    "JIC": {"opcode": 0x02, "mode": "ADDR16"},
+    "HLT": {"opcode": 0x03, "mode": "NONE"},
 
-CODE_TO_BIN_REFERENCE = {
-    "NOP": 0x0000,
-    "JMP": 0X0100,
-    "JIC": 0X0200,
-    "HLT": 0X0300,
+    "LDA": {"opcode": 0x10, "mode": "ADDR16"},
+    "STA": {"opcode": 0x11, "mode": "ADDR16"},
+    "LDI": {"opcode": 0x12, "mode": "IMM8"},
 
-    "LDA": 0x1000,
-    "STA": 0X1100,
-    "LDI": 0X1200,
-
-    "ADD": 0X2000,
-    "SUB": 0X2100,
+    "ADD": {"opcode": 0x20, "mode": "ADDR16"},
+    "SUB": {"opcode": 0x21, "mode": "ADDR16"},
 }
+
+LABELS = []
+
+RAM = ["00"] * 65536
 
 pc = 0
 
 for i in range(len(content)):
-    line = content[i].strip().split()
+    line = content[i].split()
+
+    if not line:
+        continue
 
     if line[0].endswith(":"):
         LABELS.append(i)
         continue
     
-    opcode = CODE_TO_BIN_REFERENCE[line[0]]
+    if line[0] in CODE_TO_BIN:
+        inst = CODE_TO_BIN[line[0]]
+        opcode = inst["opcode"]
+        mode = inst["mode"]
+    else:
+        raise Exception(f"Instrução inválida: {line[0]}")
 
-    RAM_SHADOW[START_ADRESS + pc] = f"{opcode:04X}"
+    RAM[START_ADRESS + pc] = f"{opcode:02X}"
     pc += 1
+
+    args = line[1:]
+
+    if mode == "NONE":
+        if len(args) != 0:
+            raise Exception(f"{line[0]} não recebe argumentos")
+        continue
+
+    if len(args) != 1:
+        raise Exception(f"{line[0]} precisa de 1 argumento")
     
-    for j in range(1, len(line[1:]) + 1):
-        RAM_SHADOW[START_ADRESS + pc] = f"{int(line[j].replace(',', '')):04X}"
+    arg = int(args[0], 0)
+
+    if mode == "IMM8":
+        RAM[START_ADRESS + pc] = f"{arg & 0xFF:02X}"
+        pc += 1
+    elif mode == "ADDR16":
+        low = arg & 0xFF
+        high = (arg >> 8) & 0xFF
+        RAM[START_ADRESS + pc] = f"{low:02X}"
+        pc += 1
+        RAM[START_ADRESS + pc] = f"{high:02X}"
         pc += 1
 
-    content[i] = line
-
-
-
-for i in RAM_SHADOW[32768:32768 + 15]:
-    print(i)
+for i in RAM[32768:32768 + 15]:
+    print("0x" + str(i))
