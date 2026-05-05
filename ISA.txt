@@ -1,27 +1,107 @@
-====================== MAJORMINUS (ALFA) - INSTRUCTION SET ARCTETURE (ISA) =========================
+==============================
+        ISA - CPU 8-bit
+==============================
 
-ZERO PAGE (0x0000 - 0x00FF) - (256 slots)
-Pequeno e rápido. Ideal para variáveis críticas.
+MEMORY MAP:
 
-STACK PAGE (0x0100 - 0x1FF) - (256 slots)
-Memória da CPU para até 128 funções aninhadas.
+0x0000 - 0x00FF : ZERO PAGE (256 bytes)
+Uso: variáveis rápidas
 
-DATARAM PAGE (0x0200 - 0x7FFF) - (31,5 KB)
-Área de dados comuns. Tudo será trabalhado aqui, inclusive VRAM.
+0x0100 - 0x01FF : STACK PAGE (256 bytes)
+Uso: pilha (até 128 chamadas)
 
-ROM PAGE (0x8000 - 0xFFFF) - (32 KB)
-Opcodes e instructions.
+0x0200 - 0x7FFF : DATA RAM (31.5 KB)
+Uso: dados gerais / VRAM
 
-INSTRUCTION TABLE OPERATION CODES:
+0x8000 - 0xFFFF : ROM (32 KB)
+Uso: código (instruções)
 
-0x0_: Controle
-0x1_: Mover Dados (Loads/Stores)
-0x2_: Matemática (ALU)
 
-instruction_table[0x00] = NOP;
+==============================
+        REGISTRADORES
+==============================
 
-instruction_table[0x10] = LDA;
-instruction_table[0x11] = STA;
+A   : Acumulador (8-bit)
+PC  : Program Counter (16-bit)
+SR  : Status Register (flags)
 
-instruction_table[0x20] = ADD;
-instruction_table[0x21] = SUB;
+
+FLAGS (SR):
+C : Carry
+
+
+==============================
+        OPCODES
+==============================
+
+--- CONTROLE (0x0_) ---
+
+0x00 : NOP
+Descrição: Não faz nada
+
+0x01 : HLT
+Descrição: Para a execução da CPU
+
+0x02 : JMP addr
+Descrição: PC ← addr
+
+0x03 : JIC addr
+Descrição: Se Carry = 1 então PC ← addr
+
+
+--- MOVER DADOS (0x1_) ---
+
+0x10 : LDA addr
+Descrição: A ← MEM[addr]
+
+0x11 : STA addr
+Descrição: MEM[addr] ← A
+
+0x12 : LDI value
+Descrição: A ← value (imediato)
+
+
+--- ALU (0x2_) ---
+
+0x20 : ADD addr
+Descrição: A ← A + MEM[addr]
+
+0x21 : SUB addr
+Descrição: A ← A - MEM[addr]
+
+
+==============================
+        FORMATO DAS INSTRUÇÕES
+==============================
+
+Instruções com endereço (16-bit):
+[OPCODE][LOW][HIGH]
+
+Exemplo:
+LDA 0x1234 → 0x10 0x34 0x12
+
+
+Instruções imediatas:
+[OPCODE][VALUE]
+
+Exemplo:
+LDI 0x42 → 0x12 0x42
+
+
+Instruções simples:
+[OPCODE]
+
+Exemplo:
+NOP → 0x00
+
+
+==============================
+        OBSERVAÇÕES
+==============================
+
+- Endereçamento: Little-endian (LOW primeiro, depois HIGH)
+- ALU atualiza flags no SR
+- JIC depende da flag Carry
+- HLT deve sinalizar parada da CPU (via flag ou controle externo)
+
+==============================

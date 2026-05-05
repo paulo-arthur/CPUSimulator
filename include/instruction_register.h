@@ -19,5 +19,6 @@ void STA(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 void LDI(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 void JMP(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 void JIC(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+void HLT(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 
 #endif

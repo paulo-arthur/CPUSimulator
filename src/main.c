@@ -58,6 +58,7 @@ int main() {
     instruction_table[0x00] = NOP;
     instruction_table[0x01] = JMP;
     instruction_table[0x02] = JIC;
+    instruction_table[0x03] = HLT;
 
     instruction_table[0X10] = LDA;
     instruction_table[0X11] = STA;
@@ -105,17 +106,8 @@ int main() {
             printf("--- Ciclo %i ---\n", i);
             printf("PC antes: %4X\n", pc);
 
-            // TRUQUE DE TESTE: Acende a luz do Carry 'na mão' quando chegar na Cena 3
-            if (pc == 0x8030) {
-                status_register |= 1; // 1 é a máscara da FLAG_C (Bit 0)
-                printf(">>> AVISO: Flag C acesa artificialmente! <<<\n");
-            }
+            byte opcode = read_RAM(&ram, pc++);
 
-            byte opcode = read_RAM(&ram, pc);
-            pc++;
-            
-            // Passando o status_register para a instrução!
-            // Certifique-se de que o typedef de InstructionHandler aceite esse 4º argumento.
             instruction_table[opcode](&a, &ram, &pc, &status_register);
 
             printf("Acumulador agora: %i\n", a);
