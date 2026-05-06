@@ -1,57 +1,146 @@
-# 8-Bit CPU Simulator in C
+# MajorMinus – Simulador de CPU 8-bit
 
-A low-level hardware simulation project focused on building a functional CPU architecture from scratch. This project simulates fundamental components including Logic Gates, Multiplexers, D-Type Flip-Flops, 8-bit Registers, and an Arithmetic Logic Unit (ALU).
+Este projeto implementa uma CPU simples de 8 bits, incluindo:
 
-## Project Structure
+- Unidade lógica e aritmética (ALU)
+- Registradores (A, PC, status)
+- Memória RAM
+- Unidade de controle baseada em tabela de instruções
+- Assembler próprio (Python)
 
-* **include/**: Header files (.h) containing struct definitions and function prototypes.
-* **src/**: Source files (.c) containing the implementation of logic and hardware behavior.
-* **Makefile**: Build script for easy compilation.
+O objetivo é estudar arquitetura de computadores a partir de uma implementação de baixo nível, com controle explícito de bits, flags e fluxo de execução.
 
-## Function Documentation
+---
 
-### ALU (Arithmetic Logic Unit)
-* **Function**: `ALU_OUTPUT ALU(byte A, byte B, byte A_S)`
-* **Receives**: 
-    * `byte A`, `byte B`: Two 8-bit inputs.
-    * `byte A_S`: Control signal (Add/Subtract).
-* **Returns**: `ALU_OUTPUT` struct containing the 8-bit result (`RES`) and hardware flags (`Z`, `N`, `C`, `V`).
-* **Description**: Simulates a bit-by-bit ripple carry adder/subtractor. It calculates the result and updates status flags for Zero, Negative, Carry, and Overflow.
+## Arquitetura
 
-### D-Type Flip-Flop (DFF)
-* **Function**: `void update_DFF(DFF *dff, uint8_t d, uint8_t clk)`
-* **Receives**: 
-    * `DFF *dff`: Pointer to the DFF structure to be updated.
-    * `uint8_t d`: The data input bit (0 or 1).
-    * `uint8_t clk`: The current clock signal (0 or 1).
-* **Returns**: `void`
-* **Description**: Updates the internal state of a flip-flop. It captures the input `d` only on the rising edge of the clock signal.
+### Tipos principais
 
-### Register (8-bit)
-* **Function**: `void update_register(register8 reg, int8_t data, int clock)`
-* **Receives**: 
-    * `register8 reg`: The array of 8 DFFs representing the register.
-    * `int8_t data`: The 8-bit value to be stored.
-    * `int clock`: The current clock signal.
-* **Returns**: `void`
-* **Description**: Iterates through each bit of the input data and updates the corresponding DFF within the register.
+- `byte`: inteiro de 8 bits  
+- `A`: acumulador (8 bits)  
+- `PC`: program counter (16 bits)  
+- `STATUS_REGISTER`: flags da CPU  
+- `RAM`: memória de 64KB  
 
-### Byte Retrieval
-* **Function**: `byte get_full_byte(register8 reg)`
-* **Receives**: `register8 reg` (the array of 8 DFFs).
-* **Returns**: `byte` (int8_t).
-* **Description**: Reads the `q` state of all 8 DFFs and reconstructs them into a single 8-bit integer (byte).
+---
 
-### Multiplexer (MUX)
-* **Function**: `int8_t MUX(int a, int b, int s)`
-* **Receives**: Inputs `a`, `b` and a selector `s`.
-* **Returns**: `int8_t` (the value of `a` if `s=0`, or `b` if `s=1`).
-* **Description**: Fundamental component used for signal routing and state selection.
+### Flags
 
-## Build and Run
+O registrador de status contém:
 
-To compile the project, use the provided Makefile:
+| Flag | Nome      | Descrição                     |
+|------|----------|------------------------------|
+| Z    | Zero     | Resultado é zero             |
+| N    | Negative | Bit de sinal (bit 7)         |
+| C    | Carry    | Carry/borrow da operação     |
+| V    | Overflow | Overflow aritmético          |
+
+---
+
+## Organização de Memória
+
+| Região        | Endereço           | Descrição                         |
+|--------------|------------------|----------------------------------|
+| Zero Page    | 0x0000 – 0x00FF  | Variáveis rápidas                 |
+| Stack        | 0x0100 – 0x01FF  | Pilha                            |
+| Data RAM     | 0x0200 – 0x7FFF  | Dados gerais                     |
+| ROM          | 0x8000 – 0xFFFF  | Código do programa               |
+
+---
+
+## ISA (Instruction Set Architecture)
+
+### Formato geral
+
+- RAM é byte-addressable (8 bits)  
+- Endereços são de 16 bits (little endian)  
+
+---
+
+### Grupo 0x0_ – Controle
+
+| Opcode | Instrução | Descrição |
+|--------|----------|----------|
+| 0x00   | NOP      | Nenhuma operação |
+| 0x01   | JMP addr | Salta para endereço |
+| 0x02   | JIC addr | Salta se carry = 1 |
+| 0x03   | HLT      | Para execução |
+
+---
+
+### Grupo 0x1_ – Dados
+
+| Opcode | Instrução     | Descrição |
+|--------|--------------|----------|
+| 0x10   | LDA addr     | A ← RAM[addr] |
+| 0x11   | STA addr     | RAM[addr] ← A |
+| 0x12   | LDI imm      | A ← imediato (8 bits) |
+
+---
+
+### Grupo 0x2_ – ALU
+
+| Opcode | Instrução     | Descrição |
+|--------|--------------|----------|
+| 0x20   | ADD addr     | A ← A + RAM[addr] |
+| 0x21   | SUB addr     | A ← A - RAM[addr] |
+
+---
+
+## ALU
+
+A ALU é implementada bit a bit (ripple-carry), operando com:
+
+- Soma: `A + B`
+- Subtração: `A - B` (via complemento de dois)
+
+Ela retorna:
+
+- Resultado (8 bits)
+- Flags: Z, N, C, V
+
+As flags são automaticamente atualizadas no `STATUS_REGISTER`.
+
+---
+
+## Assembler
+
+O assembler (`assembler.py`) converte código `.asm` em um arquivo de saída (`a.bin`).
+
+### Características
+
+- Suporte a:
+  - Imediatos (`LDI 10`)
+  - Endereços (`LDA 0x2000`)
+- Saída textual (uma palavra por linha, em hexadecimal)
+
+## Execução
+
+### Compilar
 
 ```bash
 make
-./CS01
+```
+Rodar assembler
+```bash
+python assembler.py
+```
+
+## Objetivo
+
+Este projeto não busca performance, mas sim:
+
+Clareza na implementação
+Controle total sobre cada operação
+Entendimento real de:
+ALU
+flags
+fetch-decode-execute
+encoding de instruções
+Possíveis Extensões
+Suporte a labels no assembler
+Saída binária real (.bin)
+Debugger (step/run)
+Mais instruções (AND, OR, XOR, shifts)
+Pilha e chamadas de função
+Interrupções
