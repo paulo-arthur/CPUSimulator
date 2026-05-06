@@ -25,6 +25,15 @@ RAM = ["00"] * 65536
 
 pc = 0
 
+for p in range(len(content)):
+    line = content[p].split()
+    if line[0].endswith(":"):
+        LABELS.append({
+            "label": line[0].replace(":", ""),
+            "adr": START_ADRESS + p
+        })
+        continue
+
 for i in range(len(content)):
     line = content[i].split()
 
