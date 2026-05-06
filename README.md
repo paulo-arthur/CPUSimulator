@@ -1,4 +1,4 @@
-# CS01 – Simulador de CPU 8-bit
+# MajorMinus – Simulador de CPU 8-bit
 
 Este projeto implementa uma CPU simples de 8 bits, incluindo:
 
