@@ -8,6 +8,7 @@
 #define FLAG_Z (1 << 1) // Bit 1 (0000 0010)
 #define FLAG_N (1 << 2) // Bit 2 (0000 0100)
 #define FLAG_V (1 << 3) // Bit 3 (0000 1000)
+#define FLAG_Q (1 << 4) // Bit 4 (0001 0000)
 
 typedef uint8_t STATUS_REGISTER;
 
@@ -22,5 +23,8 @@ void set_N_flag(STATUS_REGISTER *sr, byte value);
 
 byte get_V_flag(STATUS_REGISTER sr);
 void set_V_flag(STATUS_REGISTER *sr, byte value);
+
+byte get_Q_flag(STATUS_REGISTER sr);
+void set_Q_flag(STATUS_REGISTER *sr, byte value);
 
 #endif

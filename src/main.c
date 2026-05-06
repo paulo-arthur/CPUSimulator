@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 
 #include "ALU.h"
@@ -67,42 +68,17 @@ int main() {
     instruction_table[0x20] = ADD;
     instruction_table[0x21] = SUB;
 
-    // =========================================================
-    // PROGRAMA DE TESTE NA RAM
-    // =========================================================
+    FILE* file = fopen("a.bin", "r");
+    char line[256];
 
-    // CENA 1: JMP incondicional
-    // O PC começa em 0x8000. Vamos pular direto para 0x8010.
-    write_RAM(&ram, 0x8000, 0x01); // Opcode: JMP
-    write_RAM(&ram, 0x8001, 0x10); // Low Byte  (0x10)
-    write_RAM(&ram, 0x8002, 0x80); // High Byte (0x80)
+    int line_counter = 0;
+    while (fgets(line, sizeof(line), file)) {
+        write_RAM(&ram, line_counter++, (uint8_t)strtol(line, NULL, 0));
+    }
+    fclose(file);
 
-    // CENA 2: JIC Falso (Carry = 0)
-    // O PC vai chegar no 0x8010. O Status Register começa em 0, 
-    // então a Flag C está apagada. Ele NÃO deve pular para 0x8025.
-    write_RAM(&ram, 0x8010, 0x02); // Opcode: JIC
-    write_RAM(&ram, 0x8011, 0x25); // Low Byte  (0x25)
-    write_RAM(&ram, 0x8012, 0x80); // High Byte (0x80)
-
-    // Como o JIC falhou, o PC deve apenas ignorar os argumentos 
-    // e cair graciosamente na próxima linha: 0x8013.
-    // Vamos fazer um JMP aqui para levar para a última fase do teste.
-    write_RAM(&ram, 0x8013, 0x01); // Opcode: JMP
-    write_RAM(&ram, 0x8014, 0x2F); // Low Byte  (0x30)
-    write_RAM(&ram, 0x8015, 0x80); // High Byte (0x80)
-
-    // CENA 3: JIC Verdadeiro (Carry = 1)
-    // O PC vai chegar no 0x8030. Nós vamos usar um truque no loop
-    // para acender o Carry artificialmente logo antes dessa linha rodar.
-    // Como o Carry vai estar aceso, o PC TEM que pular para 0x8042!
-    write_RAM(&ram, 0x8030, 0x02); // Opcode: JIC
-    write_RAM(&ram, 0x8031, 0x42); // Low Byte  (0x42)
-    write_RAM(&ram, 0x8032, 0x80); // High Byte (0x80)
-
-    // Destino final: 0x8042. Vamos colocar um NOP aqui só para ele ler algo em paz.
-    write_RAM(&ram, 0x8042, 0x00); // Opcode: NOP
-
-    for(int i = 0; i < 10; i++) {
+    int i = 0;
+    while(!get_Q_flag(status_register)) {
             printf("--- Ciclo %i ---\n", i);
             printf("PC antes: %4X\n", pc);
 
@@ -114,5 +90,6 @@ int main() {
             printf("PC depois: %4X\n\n", pc);
 
             clock = !clock;
+            i++;
         }
 }

@@ -68,5 +68,8 @@ for i in range(len(content)):
         RAM[START_ADRESS + pc] = f"{high:02X}"
         pc += 1
 
-for i in RAM[32768:32768 + 15]:
-    print("0x" + str(i))
+for i in range(len(RAM)):
+    RAM[i] ="0x" + RAM[i] + '\n'
+
+with open("a.bin", "w") as output:
+    output.writelines(RAM)

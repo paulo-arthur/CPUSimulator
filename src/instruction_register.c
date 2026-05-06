@@ -61,5 +61,5 @@ void JIC(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     *pc = (*pc & ~mask) | (adress & mask);
 };
 void HLT(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
-    return 0;
+    set_Q_flag(sr, 1);
 }

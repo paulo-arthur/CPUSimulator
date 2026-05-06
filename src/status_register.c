@@ -29,3 +29,10 @@ byte get_V_flag(STATUS_REGISTER sr) {
 void set_V_flag(STATUS_REGISTER *sr, byte value) {
     *sr = (*sr & ~FLAG_V) | ((!!value) << 3);
 }
+
+byte get_Q_flag(STATUS_REGISTER sr) {
+    return (sr & FLAG_Q) >> 4;
+}
+void set_Q_flag(STATUS_REGISTER *sr, byte value) {
+    *sr = (*sr & ~FLAG_Q) | ((!!value) << 4);
+}
