@@ -27,7 +27,7 @@ pc = 0
 
 for p in range(len(content)):
     line = content[p].split()
-    if line[0].endswith(":"):
+    if not len(line) == 0 and line[0].endswith(":"):
         LABELS.append({
             "label": line[0].replace(":", ""),
             "adr": START_ADRESS + p
@@ -37,11 +37,7 @@ for p in range(len(content)):
 for i in range(len(content)):
     line = content[i].split()
 
-    if not line:
-        continue
-
-    if line[0].endswith(":"):
-        LABELS.append(i)
+    if not line or line[0].endswith(":"):
         continue
     
     if line[0] in CODE_TO_BIN:
@@ -64,7 +60,12 @@ for i in range(len(content)):
     if len(args) != 1:
         raise Exception(f"{line[0]} precisa de 1 argumento")
     
-    arg = int(args[0], 0)
+    if not args[0].isnumeric():
+        for l in LABELS:
+            if l["label"] == args[0]:
+                arg = l["adr"]
+    else:
+        arg = int(args[0], 0)
 
     if mode == "IMM8":
         RAM[START_ADRESS + pc] = f"{arg & 0xFF:02X}"
