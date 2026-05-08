@@ -59,13 +59,18 @@ for i in range(len(content)):
 
     if len(args) != 1:
         raise Exception(f"{line[0]} precisa de 1 argumento")
-    
-    if not args[0].isnumeric():
+
+    try:
+        arg = int(args[0], 0)
+    except:
+        was_label_found = False
         for l in LABELS:
             if l["label"] == args[0]:
                 arg = l["adr"]
-    else:
-        arg = int(args[0], 0)
+                was_label_found = True
+        
+        if not was_label_found:
+            print("Label not found.")
 
     if mode == "IMM8":
         RAM[START_ADRESS + pc] = f"{arg & 0xFF:02X}"
