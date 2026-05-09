@@ -9,7 +9,10 @@ CODE_TO_BIN = {
     "NOP": {"opcode": 0x00, "mode": "NONE"},
     "JMP": {"opcode": 0x01, "mode": "ADDR16"},
     "JIC": {"opcode": 0x02, "mode": "ADDR16"},
-    "HLT": {"opcode": 0x03, "mode": "NONE"},
+    "JIE": {"opcode": 0x03, "mode": "ADDR16"},
+    "JNE": {"opcode": 0x04, "mode": "ADDR16"},
+    "JIN": {"opcode": 0x05, "mode": "ADDR16"},
+    "HLT": {"opcode": 0x0F, "mode": "NONE"},
 
     "LDA": {"opcode": 0x10, "mode": "ADDR16"},
     "STA": {"opcode": 0x11, "mode": "ADDR16"},
@@ -17,6 +20,7 @@ CODE_TO_BIN = {
 
     "ADD": {"opcode": 0x20, "mode": "ADDR16"},
     "SUB": {"opcode": 0x21, "mode": "ADDR16"},
+    "CMP": {"opcode": 0x22, "mode": "ADDR16"}
 }
 
 LABELS = []

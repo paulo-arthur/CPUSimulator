@@ -59,7 +59,10 @@ int main() {
     instruction_table[0x00] = NOP;
     instruction_table[0x01] = JMP;
     instruction_table[0x02] = JIC;
-    instruction_table[0x03] = HLT;
+    instruction_table[0x03] = JIE;
+    instruction_table[0x04] = JNE;
+    instruction_table[0x05] = JIN;
+    instruction_table[0x0F] = HLT;
 
     instruction_table[0X10] = LDA;
     instruction_table[0X11] = STA;
@@ -67,6 +70,7 @@ int main() {
 
     instruction_table[0x20] = ADD;
     instruction_table[0x21] = SUB;
+    instruction_table[0x22] = CMP;
 
     FILE* file = fopen("a.bin", "r");
     char line[256];
@@ -88,6 +92,11 @@ int main() {
 
             printf("Acumulador agora: %i\n", a);
             printf("PC depois: %4X\n\n", pc);
+            printf("Flags \nZ: %X\nN: %X\nC: %X\nV: %X\n"
+                , get_Z_flag(status_register)
+                , get_N_flag(status_register)
+                , get_C_flag(status_register)
+                , get_V_flag(status_register));
 
             clock = !clock;
             i++;

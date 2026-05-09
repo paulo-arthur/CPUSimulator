@@ -33,6 +33,13 @@ void SUB(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     uint16_t adress = low | (high << 8);
     (*a) = ALU((*a), read_RAM(ram, adress), 1, sr).RES;
 }
+void CMP(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+
+    ALU(*a, read_RAM(ram, adress), 1, sr);
+}
 void STA(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     byte low = read_RAM(ram, (*pc)++);
     byte high = read_RAM(ram, (*pc)++);
@@ -60,6 +67,30 @@ void JIC(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     
     *pc = (*pc & ~mask) | (adress & mask);
 };
+void JIE(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+
+    uint16_t mask = -((uint16_t)get_Z_flag(*sr));
+    *pc = (*pc & ~mask) | (adress & mask);
+}
+void JNE(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+
+    uint16_t mask = ~-((uint16_t)get_Z_flag(*sr));
+    *pc = (*pc & ~mask) | (adress & mask);
+}
+void JIN(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+
+    uint16_t mask = -((uint16_t)get_N_flag(*sr));
+    *pc = (*pc & ~mask) | (adress & mask);
+}
 void HLT(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     set_Q_flag(sr, 1);
 }
