@@ -2,15 +2,23 @@ START:
     LDI 1
     STA 0X2000
 
-    LDI 0
+    LDI 1
     STA 0X2001
 
 LOOP:
     LDA 0X2001
-    ADD 0X2000
-    STA 0X2001
+    STA 0X2002
+
+    LDA 0X2000
+    ADD 0X2002
 
     JIC END
+
+    STA 0X2001
+
+    LDA 0X2002
+    STA 0X2000
+
     JMP LOOP
 
 END:

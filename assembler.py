@@ -3,7 +3,7 @@ with open('main.asm', 'r') as file:
 
 content = content.split("\n")
 
-START_ADRESS = 0x8000
+START_ADDRESS = 0x8000
 
 CODE_TO_BIN = {
     "NOP": {"opcode": 0x00, "mode": "NONE"},
@@ -23,16 +23,31 @@ LABELS = []
 
 RAM = ["00"] * 65536
 
-pc = 0
+pc = START_ADDRESS
+label_pre_pc = START_ADDRESS
 
 for p in range(len(content)):
     line = content[p].split()
-    if not len(line) == 0 and line[0].endswith(":"):
+
+    if not line:
+        continue
+
+    if line[0].endswith(":"):
         LABELS.append({
             "label": line[0].replace(":", ""),
-            "adr": START_ADRESS + p
+            "adr": label_pre_pc
         })
-        continue
+        continue 
+
+    label_pre_pc += 1
+
+    try:
+        if CODE_TO_BIN[line[0]]["mode"] == "ADDR16":
+            label_pre_pc += 2
+        elif CODE_TO_BIN[line[0]]["mode"] == "IMM8":
+            label_pre_pc += 1
+    except ValueError:
+        pass
 
 for i in range(len(content)):
     line = content[i].split()
@@ -47,7 +62,7 @@ for i in range(len(content)):
     else:
         raise Exception(f"Instrução inválida: {line[0]}")
 
-    RAM[START_ADRESS + pc] = f"{opcode:02X}"
+    RAM[pc] = f"{opcode:02X}"
     pc += 1
 
     args = line[1:]
@@ -73,14 +88,14 @@ for i in range(len(content)):
             print("Label not found.")
 
     if mode == "IMM8":
-        RAM[START_ADRESS + pc] = f"{arg & 0xFF:02X}"
+        RAM[pc] = f"{arg & 0xFF:02X}"
         pc += 1
     elif mode == "ADDR16":
         low = arg & 0xFF
         high = (arg >> 8) & 0xFF
-        RAM[START_ADRESS + pc] = f"{low:02X}"
+        RAM[pc] = f"{low:02X}"
         pc += 1
-        RAM[START_ADRESS + pc] = f"{high:02X}"
+        RAM[pc] = f"{high:02X}"
         pc += 1
 
 for i in range(len(RAM)):
