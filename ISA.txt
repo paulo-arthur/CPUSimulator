@@ -8,7 +8,7 @@ MEMORY MAP:
 Uso: variáveis rápidas
 
 0x0100 - 0x01FF : STACK PAGE (256 bytes)
-Uso: pilha (até 128 chamadas)
+Uso: pilha (futuro)
 
 0x0200 - 0x7FFF : DATA RAM (31.5 KB)
 Uso: dados gerais / VRAM
@@ -23,11 +23,15 @@ Uso: código (instruções)
 
 A   : Acumulador (8-bit)
 PC  : Program Counter (16-bit)
-SR  : Status Register (flags)
+SR  : Status Register
 
 
 FLAGS (SR):
+
+Z : Zero
+N : Negative
 C : Carry
+V : Overflow
 
 
 ==============================
@@ -37,37 +41,79 @@ C : Carry
 --- CONTROLE (0x0_) ---
 
 0x00 : NOP
-Descrição: Não faz nada
+Descrição:
+Não faz nada
 
-0x01 : HLT
-Descrição: Para a execução da CPU
+0x01 : JMP addr
+Descrição:
+PC ← addr
 
-0x02 : JMP addr
-Descrição: PC ← addr
+0x02 : JIC addr
+Descrição:
+Se Carry = 1 então PC ← addr
 
-0x03 : JIC addr
-Descrição: Se Carry = 1 então PC ← addr
+0x03 : JIE addr
+Descrição:
+Se Zero = 1 então PC ← addr
+
+0x04 : JNE addr
+Descrição:
+Se Zero = 0 então PC ← addr
+
+0x05 : JIN addr
+Descrição:
+Se Negative = 1 então PC ← addr
+
+0x0F : HLT
+Descrição:
+Para a execução da CPU
 
 
 --- MOVER DADOS (0x1_) ---
 
 0x10 : LDA addr
-Descrição: A ← MEM[addr]
+Descrição:
+A ← MEM[addr]
 
 0x11 : STA addr
-Descrição: MEM[addr] ← A
+Descrição:
+MEM[addr] ← A
 
 0x12 : LDI value
-Descrição: A ← value (imediato)
+Descrição:
+A ← value
 
 
 --- ALU (0x2_) ---
 
 0x20 : ADD addr
-Descrição: A ← A + MEM[addr]
+Descrição:
+A ← A + MEM[addr]
 
 0x21 : SUB addr
-Descrição: A ← A - MEM[addr]
+Descrição:
+A ← A - MEM[addr]
+
+0x22 : INC addr
+Descrição:
+MEM[addr] ← MEM[addr] + 1
+
+0x23 : DEC addr
+Descrição:
+MEM[addr] ← MEM[addr] - 1
+
+0x24 : ADI value
+Descrição:
+A ← A + value
+
+0x25 : SBI value
+Descrição:
+A ← A - value
+
+0x2F : CMP addr
+Descrição:
+Compara A com MEM[addr]
+Flags são atualizadas, mas A não é alterado
 
 
 ==============================
@@ -78,30 +124,46 @@ Instruções com endereço (16-bit):
 [OPCODE][LOW][HIGH]
 
 Exemplo:
-LDA 0x1234 → 0x10 0x34 0x12
+LDA 0x1234
+→ 0x10 0x34 0x12
 
 
 Instruções imediatas:
 [OPCODE][VALUE]
 
 Exemplo:
-LDI 0x42 → 0x12 0x42
+LDI 0x42
+→ 0x12 0x42
 
 
 Instruções simples:
 [OPCODE]
 
 Exemplo:
-NOP → 0x00
+NOP
+→ 0x00
 
 
 ==============================
         OBSERVAÇÕES
 ==============================
 
-- Endereçamento: Little-endian (LOW primeiro, depois HIGH)
-- ALU atualiza flags no SR
-- JIC depende da flag Carry
-- HLT deve sinalizar parada da CPU (via flag ou controle externo)
+- Endereçamento little-endian
+  LOW byte vem antes do HIGH byte
+
+- A ALU atualiza:
+  Z, N, C e V
+
+- CMP não altera A
+
+- Jumps condicionais usam flags do SR
+
+- Carry:
+  C = 1 → sem borrow
+  C = 0 → com borrow
+
+- N é o bit de sinal do resultado
+
+- V indica overflow signed
 
 ==============================

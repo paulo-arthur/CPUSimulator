@@ -1,14 +1,48 @@
-LDI 5
-STA 0x2000
+START:
+    LDI 10
+    STA 0x2000
 
-LDI 6
-SUB 0x2000
+    LDI 0
+    STA 0x2001
 
-JIN SUP_END
+    LDI 1
+    STA 0x2002
 
-LDI 24
-HLT
+LOOP:
+    LDA 0x2001
+    ADD 0x2002
+    STA 0x2001
 
-SUP_END:
-    LDI 23
+    LDA 0x2002
+    INC
+    STA 0x2002
+
+    CMP 0x2000
+    JIE END
+
+    JMP LOOP
+
+END:
+    LDA 0x2001
+
+    SBI 5
+
+    JIN NEGATIVE_TEST
+
+    ADI 1
+
+NEGATIVE_TEST:
+    LDA 0x2001
+
+    SUB 0x2000
+
+    JIC CARRY_OK
+
+    LDI 99
+    JMP FINAL
+
+CARRY_OK:
+    LDI 42
+
+FINAL:
     HLT

@@ -53,7 +53,7 @@ int main() {
     STATUS_REGISTER status_register = 0;
 
     for (int i = 0; i < 256; i++) {
-        instruction_table[i] = UNK;
+        instruction_table[i] = NOP;
     }
 
     instruction_table[0x00] = NOP;
@@ -70,7 +70,11 @@ int main() {
 
     instruction_table[0x20] = ADD;
     instruction_table[0x21] = SUB;
-    instruction_table[0x22] = CMP;
+    instruction_table[0x22] = INC;
+    instruction_table[0x23] = DEC;
+    instruction_table[0x24] = ADI;
+    instruction_table[0x25] = SBI;
+    instruction_table[0x2F] = CMP;
 
     FILE* file = fopen("a.bin", "r");
     char line[256];
@@ -92,11 +96,11 @@ int main() {
 
             printf("Acumulador agora: %i\n", a);
             printf("PC depois: %4X\n\n", pc);
-            printf("Flags \nZ: %X\nN: %X\nC: %X\nV: %X\n"
+            /*printf("Flags \nZ: %X\nN: %X\nC: %X\nV: %X\n"
                 , get_Z_flag(status_register)
                 , get_N_flag(status_register)
                 , get_C_flag(status_register)
-                , get_V_flag(status_register));
+                , get_V_flag(status_register));*/
 
             clock = !clock;
             i++;

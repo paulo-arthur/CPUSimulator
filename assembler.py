@@ -20,8 +20,14 @@ CODE_TO_BIN = {
 
     "ADD": {"opcode": 0x20, "mode": "ADDR16"},
     "SUB": {"opcode": 0x21, "mode": "ADDR16"},
-    "CMP": {"opcode": 0x22, "mode": "ADDR16"}
+    "INC": {"opcode": 0x22, "mode": "NONE"},
+    "DEC": {"opcode": 0x23, "mode": "NONE"},
+    "ADI": {"opcode": 0x24, "mode": "IMM8"},
+    "SBI": {"opcode": 0x25, "mode": "IMM8"},
+    "CMP": {"opcode": 0x2F, "mode": "ADDR16"}
 }
+
+#TODO: atualizar ISA.txt quanto ao INC e DEC
 
 LABELS = []
 
