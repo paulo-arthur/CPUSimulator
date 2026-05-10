@@ -76,6 +76,13 @@ int main() {
     instruction_table[0x25] = SBI;
     instruction_table[0x2F] = CMP;
 
+    instruction_table[0x30] = AND;
+    instruction_table[0x31] = OR;
+    instruction_table[0x32] = XOR;
+    instruction_table[0x33] = NOT;
+    instruction_table[0x34] = SHL;
+    instruction_table[0x35] = SHR;
+
     FILE* file = fopen("a.bin", "r");
     char line[256];
 
@@ -94,13 +101,13 @@ int main() {
 
             instruction_table[opcode](&a, &ram, &pc, &status_register);
 
-            printf("Acumulador agora: %i\n", a);
+            printf("Acumulador agora: %8b\n", a);
             printf("PC depois: %4X\n\n", pc);
-            /*printf("Flags \nZ: %X\nN: %X\nC: %X\nV: %X\n"
+            printf("Flags \nZ: %X\nN: %X\nC: %X\nV: %X\n"
                 , get_Z_flag(status_register)
                 , get_N_flag(status_register)
                 , get_C_flag(status_register)
-                , get_V_flag(status_register));*/
+                , get_V_flag(status_register));
 
             clock = !clock;
             i++;

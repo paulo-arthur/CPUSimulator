@@ -30,5 +30,12 @@ void ADI(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 void SBI(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 void CMP(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
 
+void AND(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+void  OR(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+void XOR(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+void NOT(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+void SHL(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+void SHR(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr);
+
 
 #endif

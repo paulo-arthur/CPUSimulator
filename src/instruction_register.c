@@ -100,12 +100,48 @@ void SBI(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     byte arg = read_RAM(ram, (*pc)++);
     (*a) = ALU((*a), arg, 1, sr).RES;
 }
-
-
 void CMP(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
     byte low = read_RAM(ram, (*pc)++);
     byte high = read_RAM(ram, (*pc)++);
     uint16_t adress = low | (high << 8);
 
     ALU(*a, read_RAM(ram, adress), 1, sr);
+}
+
+void AND(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+    (*a) &= read_RAM(ram, adress);
+}
+void  OR(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+    (*a) |= read_RAM(ram, adress);
+}
+void XOR(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    byte low = read_RAM(ram, (*pc)++);
+    byte high = read_RAM(ram, (*pc)++);
+    uint16_t adress = low | (high << 8);
+    (*a) ^= read_RAM(ram, adress);
+}
+void NOT(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    (*a) = ~(*a);
+}
+void SHL(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    set_C_flag(sr, (*a >> 7) & 1);
+
+    (*a) <<= 1;
+
+    set_Z_flag(sr, *a == 0);
+    set_N_flag(sr, (*a >> 7) & 1);
+}
+void SHR(A *a, RAM *ram, PC *pc, STATUS_REGISTER *sr) {
+    set_C_flag(sr, *a & 1);
+
+    (*a) >>= 1;
+
+    set_Z_flag(sr, *a == 0);
+    set_N_flag(sr, 0);
 }

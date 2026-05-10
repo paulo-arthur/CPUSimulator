@@ -24,7 +24,14 @@ CODE_TO_BIN = {
     "DEC": {"opcode": 0x23, "mode": "NONE"},
     "ADI": {"opcode": 0x24, "mode": "IMM8"},
     "SBI": {"opcode": 0x25, "mode": "IMM8"},
-    "CMP": {"opcode": 0x2F, "mode": "ADDR16"}
+    "CMP": {"opcode": 0x2F, "mode": "ADDR16"},
+
+    "AND": {"opcode": 0x30, "mode": "ADDR16"},
+     "OR": {"opcode": 0x31, "mode": "ADDR16"},
+    "XOR": {"opcode": 0x32, "mode": "ADDR16"},
+    "NOT": {"opcode": 0x33, "mode": "NONE"},
+    "SHL": {"opcode": 0x34, "mode": "NONE"},
+    "SHR": {"opcode": 0x35, "mode": "NONE"},
 }
 
 #TODO: atualizar ISA.txt quanto ao INC e DEC
