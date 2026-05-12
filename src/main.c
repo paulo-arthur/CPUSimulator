@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "raylib.h"
 
 #include "ALU.h"
 #include "MUX.h"
@@ -91,6 +92,19 @@ int main() {
         write_RAM(&ram, line_counter++, (uint8_t)strtol(line, NULL, 0));
     }
     fclose(file);
+
+    //Initiating Window
+    InitWindow(600 + 20, 400 + 20, "MajorMinus - 1.0");
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+            ClearBackground(DARKGRAY);
+            DrawRectangle(10, 10, 6, 1, YELLOW);
+            DrawRectangle(10 + 6 + 1, 10, 6, 1, YELLOW);
+            DrawRectangle(10, 10, 1, 6, YELLOW);
+            DrawRectangle(10, 10 + 6 + 1, 1, 6, YELLOW);
+        EndDrawing();
+    }
+    CloseWindow();
 
     int i = 0;
     while(!get_Q_flag(status_register)) {
